@@ -1,0 +1,149 @@
+<html>
+	<head>
+		<title>Labels Difference</title>
+		<style>
+			* {
+				box-sizing: border-box;
+			}
+			body {
+				font-family: Arial;
+				font-size: 100%;
+				font-size: 1em;
+				width: 100vw;
+				height: 100vh;
+				padding: 0;
+				margin: 0;
+				overflow: hidden;
+				overflow-y: auto;
+				background-color: skyblue;
+			}
+			
+			.container {
+				width: 100%;
+				height: auto;
+				padding: 20px 10%;
+			}
+			
+			.col {
+				width: 50%;
+				float: left;
+				padding: 20px;
+				text-align: center;
+				color: #fff;
+			}
+			
+			.col > textarea {
+				resize: none;
+				width: 100%;
+				height: 500px;
+				border-radius: 5px;
+				padding: 15px;
+				outline: none;
+				color: #fff;
+				background-color: #666;
+				border-color: #fff;
+			}
+			
+			.btn {
+				border-radius: 0;
+				border: 0;
+				outline: none;
+				padding: 10px 15px;
+				cursor: pointer;
+				float: left;
+				background-color: #666;
+				color: #fff;
+				width: 200px;
+				margin: 30px calc(50% - 100px);
+				transition: all .5s ease-in-out;
+			}
+			.btn:hover,
+			.btn:active {
+				background-color: #ccc;
+				color: #666;
+				transition: all .5s ease-in-out;
+			}
+		</style>
+	</head>
+	<body>
+		
+		<div class="container">
+			<div class="col">
+				<h3>First language labels</h3>
+				<textarea id="first_language"></textarea>
+			</div>
+			<div class="col">
+				<h3>Second language labels</h3>
+				<textarea id="second_language"></textarea>
+			</div>
+			<button class="btn" onclick="findDifference()">Find difference</button>
+			<div class="col">
+				<h3>First language labels that are missing in second language labels</h3>
+				<textarea id="first_language_missing_in_second_language"></textarea>
+			</div>
+			<div class="col">
+				<h3>Second language labels that are missing in first language labels</h3>
+				<textarea id="second_language_missing_in_first_language"></textarea>
+			</div>
+		</div>
+		
+		<script defer>
+		function findDifference () {
+			let first_language = document.getElementById('first_language').value.split(/\n/);
+			let second_language = document.getElementById('second_language').value.split(/\n/);
+			
+			if (first_language != "" && second_language != "") {
+				let first_language_object = makeObject(first_language);
+				let second_language_object = makeObject(second_language);
+				
+				let first_language_labels_that_are_not_within_second_language = diffLabels(first_language_object, second_language_object);
+				let second_language_labels_that_are_not_within_first_language = diffLabels(second_language_object, first_language_object);
+				
+				console.log(first_language_labels_that_are_not_within_second_language);
+				console.log(second_language_labels_that_are_not_within_first_language);
+				
+				document.getElementById('first_language_missing_in_second_language').value = makeLines(first_language_labels_that_are_not_within_second_language);
+				document.getElementById('second_language_missing_in_first_language').value = makeLines(second_language_labels_that_are_not_within_first_language);
+				
+				window.scrollTo(0,9999);
+				
+				return true;
+			}
+			alert('Languages cannot be empty');
+		}
+		
+		function makeLines (object) {
+			let lines = [];
+			let keys = Object.keys(object);
+			for (let i = 0; i < keys.length; i++) {
+				lines.push(keys[i] + '=' + object[keys[i]]);
+			}
+			return lines.join('\r\n');
+		}
+		
+		function makeObject (lines) {
+			let obj = {};
+			for (var i = 0; i < lines.length; i++) {
+				// only push this line if it contains a non whitespace character.
+				if (/\S/.test(lines[i])) {
+					let line = lines[i].trim().split("=");
+					obj[line[0]] = line[1] ? [line[1]] : '';
+				}
+			}
+			return obj;
+		}
+		
+		function diffLabels (from_object, in_object) {
+			let diff = {};
+			let from_object_keys = Object.keys(from_object);
+			let in_object_keys = Object.keys(in_object);
+			for (let i = 0; i < from_object_keys.length; i++) {
+				if (!in_object_keys.includes(from_object_keys[i].trim())) {
+					diff[from_object_keys[i].trim()] = from_object[from_object_keys[i].trim()];
+				}
+			}
+			return diff;
+		}
+		</script>
+	</body>
+</html>
